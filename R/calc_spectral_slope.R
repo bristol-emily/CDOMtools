@@ -6,11 +6,11 @@
 #'
 #' @param wavelength (num) Vector of wavelengths (nm)
 #' @param absorption (num) Vector of absorption coefficients (m^-1)
-#' @param start (num) Start of the slope region (nm). Default is 275.
-#' @param end (num) End of the slope region (nm). Default is 295.
-#' @param limit_of_quantification (num) Instrument lower limit of quantification for the specified wavelength region (m^-1)
+#' @param start (num) Start of the slope region (nm). Default value is 275.
+#' @param end (num) End of the slope region (nm). Default is value is 295.
+#' @param limit_of_quantification (num) Instrument lower limit of quantification for the specified wavelength region (m^-1). Default value is 0 (i.e. no cutoff).
 #'
-#' @return
+#' @return Log transformed spectral slope in specified region
 #' @export
 #'
 #' @examples

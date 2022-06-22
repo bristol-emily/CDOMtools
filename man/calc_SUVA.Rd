@@ -27,13 +27,13 @@ calc_SUVA(
 \item{DOC_unit}{(chr) Either "umol" or "mg". Is 'DOC' in units micromol C per liter or milligrams carbon per liter? Default is "mg".}
 }
 \value{
-
+Specific ultraviolet absorption at the specified wavelength, normalized by dissolved organic carbon concentration
 }
 \description{
-Specific ultraviolent absorbance (SUVA) is the UV absorption of a water sample at a particular wavelength, normalized by dissolved organic carbon (DOC) concentration. SUVA at 254 nm is commonly used as an indicator of DOC aromaticity (Weishaar et al. 2003).
+Specific ultraviolent absorbance (SUVA) is the UV absorption of a water sample at a particular wavelength, normalized by dissolved organic carbon (DOC) concentration.
 }
 \details{
-SUVA should be calculated using decadic rather than Napierien absorption coefficients and DOC concentrations should be milligrams carbon per liter.
+SUVA at 254 nm is commonly used as an indicator of DOC aromaticity (Weishaar et al. 2003). SUVA should be calculated using decadic rather than Napierien absorption coefficients and DOC concentrations should be milligrams carbon per liter.
 }
 \examples{
 

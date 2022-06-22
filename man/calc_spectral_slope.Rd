@@ -17,14 +17,14 @@ calc_spectral_slope(
 
 \item{absorption}{(num) Vector of absorption coefficients (m^-1)}
 
-\item{start}{(num) Start of the slope region (nm). Default is 275.}
+\item{start}{(num) Start of the slope region (nm). Default value is 275.}
 
-\item{end}{(num) End of the slope region (nm). Default is 295.}
+\item{end}{(num) End of the slope region (nm). Default is value is 295.}
 
-\item{limit_of_quantification}{(num) Instrument lower limit of quantification for the specified wavelength region (m^-1)}
+\item{limit_of_quantification}{(num) Instrument lower limit of quantification for the specified wavelength region (m^-1). Default value is 0 (i.e. no cutoff).}
 }
 \value{
-
+Log transformed spectral slope in specified region
 }
 \description{
 This function calculates the slope of log-transformed absorption spectra. Spectral slope within the 275-295 nm region is often used as a proxy for DOM molecular weight.

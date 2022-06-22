@@ -4,7 +4,7 @@
 #' @param method Either "napierian" or "decadic". Default method is "napierian".
 #' @param path_length (num) Cuvette path length in meters
 #'
-#' @return (num) Absorption coefficients (m^-1)
+#' @return Absorption coefficient(s) (m^-1)
 #' @export
 #'
 #' @examples

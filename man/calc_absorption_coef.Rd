@@ -14,7 +14,7 @@ calc_absorption_coef(absorbance, method = "napierian", path_length = 0.01)
 \item{path_length}{(num) Cuvette path length in meters}
 }
 \value{
-(num) Absorption coefficients (m^-1)
+Absorption coefficient(s) (m^-1)
 }
 \description{
 Convert absorbance units to Napierian or decadic absorption coefficients

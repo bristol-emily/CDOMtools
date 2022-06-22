@@ -6,10 +6,11 @@
 #' @param absorption (num) Vector of absorption coefficients (m^-1)
 #' @param limit_of_quantification (num) Instrument lower limit of quantification (m^-1) for the 275-400 nm region. Defaults to 0.
 #'
-#' @return
-#' @export
+#' @return (num) Ratio of spectral slopes in the 275-295 to 250-400 nm regions
 #'
 #' @examples
+#'
+
 slope_ratio <- function(wavelength,
                         absorption,
                         limit_of_quantification = 0) {

@@ -4,7 +4,7 @@
 #' @param absorption (num) Vector of absorption coefficients (m^-1)
 #' @param specific_wavelength (num) Wavelength (nm) that you want to find CDOM absorption at
 #'
-#' @return
+#' @return (num) Absorption coefficient the specified wavelength
 #' @export
 #'
 #' @examples

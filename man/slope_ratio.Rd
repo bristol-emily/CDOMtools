@@ -14,8 +14,11 @@ slope_ratio(wavelength, absorption, limit_of_quantification = 0)
 \item{limit_of_quantification}{(num) Instrument lower limit of quantification (m^-1) for the 275-400 nm region. Defaults to 0.}
 }
 \value{
-
+(num) Ratio of spectral slopes in the 275-295 to 250-400 nm regions
 }
 \description{
 Calculates the ratio of log-transformed slopes in the 275-295 to 250-400 nm regions
+}
+\examples{
+
 }

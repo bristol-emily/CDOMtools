@@ -14,7 +14,7 @@ find_absorption_coef(wavelength, absorption, specific_wavelength)
 \item{specific_wavelength}{(num) Wavelength (nm) that you want to find CDOM absorption at}
 }
 \value{
-
+(num) Absorption coefficient the specified wavelength
 }
 \description{
 Find the absorption at a specific wavelength

@@ -1,16 +1,18 @@
-#' Interpolate absorbance values to obtain absorance at integer wavelengths
+#' Interpolate raw absorbance values to get absorbance values at integer wavelengths
 #'
 #' Some spectrophotometers return data where wavelengths are not whole numbers. This function uses linear interpolation to produce absorbance values at integer wavelengths.
 #'
-#' @param wavelength (num) Vector of wavelength values
-#' @param absorbance (num) Vector of absorbance values
-#' @param start (num)
-#' @param end
+#' @param wavelength (num) Vector of raw wavelength values
+#' @param absorbance (num) Vector of raw absorbance values
+#' @param start (num) Lower limit of wavelength (nm) spectra. Default value is 200.
+#' @param end (num) Upper limit of wavelength (nm) spectra. Default value is 800.
 #'
-#' @return
+#' @return Returns a dataframe with two columns, "wavelength" and "absorbance"
 #' @export
 #'
 #' @examples
+#'
+#'
 interpolate_absorbance <- function(wavelength,
                                    absorbance,
                                    start = 200,
@@ -42,6 +44,10 @@ interpolate_absorbance <- function(wavelength,
   # combine wavelength and absorbance vectors into a dataframe
   output <- cbind(integer_wl, interpolated_abs)
   output <- as.data.frame(output)
+
+  # rename columns
+  colnames(output) <- c("wavelength", "absorbance")
+
   return(output)
 
 }
