@@ -1,8 +1,8 @@
 #' Convert absorbance units to Napierian or decadic absorption coefficients
 #'
 #' @param absorbance (num) Absorbance unit
-#' @param method Either "napierian" or "decadic". Default method is "napierian".
-#' @param path_length (num) Cuvette path length in meters
+#' @param method (chr) Either "napierian" or "decadic". Default method is "napierian".
+#' @param path_length (num) Cuvette path length in meters. Default is 0.01 m (1 cm).
 #'
 #' @return Absorption coefficient(s) (m^-1)
 #' @export

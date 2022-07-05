@@ -9,9 +9,9 @@ calc_absorption_coef(absorbance, method = "napierian", path_length = 0.01)
 \arguments{
 \item{absorbance}{(num) Absorbance unit}
 
-\item{method}{Either "napierian" or "decadic". Default method is "napierian".}
+\item{method}{(chr) Either "napierian" or "decadic". Default method is "napierian".}
 
-\item{path_length}{(num) Cuvette path length in meters}
+\item{path_length}{(num) Cuvette path length in meters. Default is 0.01 m (1 cm).}
 }
 \value{
 Absorption coefficient(s) (m^-1)
