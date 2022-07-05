@@ -11,3 +11,7 @@ LazyData: true
 RoxygenNote: 7.1.2
 URL: https://github.com/bristol-emily/CDOMtools
 BugReports: https://github.com/bristol-emily/CDOMtools/issues
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
