@@ -16,7 +16,7 @@ calc_absorption_coef <- function(absorbance,
   stopifnot(is.numeric(absorbance))
   stopifnot(is.numeric(path_length))
 
-  if (path_length != "0.01" | path_length != "0.1") {
+  if (path_length != "0.01" & path_length != "0.1") {
     warning("Cuvette path length is typically 0.01 m or 0.1 m.")
   }
 
