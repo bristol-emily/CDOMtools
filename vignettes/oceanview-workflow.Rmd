@@ -1,0 +1,161 @@
+---
+title: "oceanview-workflow"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{oceanview-workflow}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+
+```
+
+## Processing raw data from OceanOptics OceanView software
+
+The code in this vignette is written to process UV-vis absorption spectra taken with an OceanOptics mini spec using OceanView software and Beaufort Lagoons Ecosystem LTER field protocols. 
+
+### Load required packages
+
+```{r setup}
+
+library(devtools)
+devtools::install_github("bristol-emily/CDOMtools")
+library(CDOMtools)
+
+```
+
+### Read in a batch of files
+
+Read wavelength and absorbance data from a folder of .txt files. This example uses .txt files bundled in CDOMtools and stored in inst/extdata.
+
+```{r read files}
+
+library(readr)
+library(dplyr)
+library(purrr)
+
+paths <- dir(
+  path = system.file("extdata", package = "CDOMtools", mustWork = TRUE), 
+  pattern = "\\.txt$", 
+  full.names = TRUE)
+names(paths) <- basename(paths)
+raw_cdom <- map_df(paths, 
+                   read_table, 
+                   skip = 14, # skip the header of the text file
+                   col_names = FALSE, # .txt does not include column names
+                   .id = "filename")
+
+```
+
+
+
+```{r}
+## Assign clear column names          
+raw_cdom <- raw_cdom %>%
+  dplyr::rename(wavelength = "X1", # rename wavelength column 
+         absorbance = "X2") # rename absorbance column
+
+```
+
+### Interpolate raw absorbance data to integer wavelengths
+
+Use linear interpolation to calculate absorbance at integer wavelengths
+
+```{r interpolation}
+
+## Iterate interpolation function over each scan
+interpolated_cdom <- raw_cdom %>% 
+  split(.$filename) %>% # divide the vector by file
+  map_dfr( # iterate interpolation function over each file
+    ~interpolate_absorbance(.$wavelength, # wavelength vector
+                            .$absorbance), # absorbance vector
+    .id="filename") # keep filename as id
+
+```
+
+### Include timestamp data
+
+To look for instrument drift or zeroing problems during the QAQC process, it is useful to extract the timestamp from the .txt file. Note that this timestamp should only be using for correcting scans and not as the date of sample collection, which is typically included in the file name.
+
+```{r timestamp}
+
+## Extract date and time data from raw .txt files
+timestamp <- map_df(paths,
+                    read_table, 
+                    skip = 2, 
+                    n_max = 1, 
+                    col_names = FALSE, 
+                    .id = "filename", 
+                    cols(.default = "c")) 
+
+## Join data to create a column that includes the date and time
+timestamp <- timestamp %>% 
+  unite(X7, X3, X4, X5, col = datetime, sep = " ") %>% # join and rename year, month, day, time
+  rename(tz = X6) %>% # rename column with timezone data
+  select(-c(X1, X2))  # remove unnecessary columns
+
+## Check if timezone is same for all data
+length(unique(timestamp$tz))
+
+## If there are multiple timezones in the dataset, convert to datetime type using case_when
+## See OlsonNames() and timezones() for info on how to set the timezone
+timestamp <- timestamp %>% 
+  mutate(datetime = case_when(
+    tz == "CDT" ~ as_datetime(datetime, "America/Chicago"),
+    tz == "AKDT" ~ as_datetime(datetime, "America/Anchorage") 
+  ))
+
+## Remove tz column; datetime type data accounts for timezones
+timestamp <- select(timestamp, -tz) 
+
+## Add datetime data to interpolated CDOM data
+interpolated_cdom <- left_join(interpolated_cdom, timestamp, by = "filename") 
+
+```
+
+
+### Average triplicate scans
+
+The BLE LTER protocol is to save scans in triplicate. Average the output of the three scans of each sample.
+
+```{r averaging}
+
+## First, create a sample id by removing info about the scan triplicate number (e.g. "..._Absorbance_3")
+interpolated_cdom <- interpolated_cdom %>% 
+  mutate(sample = sub("_Absorb.*", "", filename)) # remove "Absorbance_x.txt"
+
+## Average the absorbance of triplicate scans and the datetimes of those scans
+averaged_cdom <- interpolated_cdom %>% 
+  group_by(sample, wavelength) %>% # group by sample and wavelength (n=3)
+  summarise(absorbance = mean(absorbance), # average absorbance for each wavelength
+            datetime = mean(datetime)) # average datetime from timestamp
+
+View(nest(averaged_cdom, data = c(wavelength, absorbance))) # view averaged samples
+
+```
+
+At this point, data is ready for QA/QC process. Any blanks should be analyzed by day/run to look for instrument drift or issues during the instrument zeroing process. Blanks may be used for correcting sample data. Remove any suspicious looking sample or blank scans.
+
+TODO: Make a vignette about correcting sample data using blank scans.
+
+## Analyzing processed data
+
+### Calculate Napierian absorption cofficient
+
+Absorbance values (i.e. optical density) should be converted to Napierian absorption coefficients for most analyses.
+
+```{r absorption coef}
+
+
+
+```
+
+### Calculating spectral slope
+
+### Calculating SUVA data
+
