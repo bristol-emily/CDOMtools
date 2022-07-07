@@ -24,11 +24,10 @@ The code in this vignette is written to process UV-vis absorption spectra taken 
 ### Load required packages
 
 ```{r setup}
-
 library(devtools)
 devtools::install_github("bristol-emily/CDOMtools")
 library(CDOMtools)
-library(tidyr)
+library(tidyverse)
 library(lubridate)
 
 ```
@@ -38,15 +37,8 @@ library(lubridate)
 Read wavelength and absorbance data from a folder of .txt files. This example uses .txt files bundled in CDOMtools and stored in extdata.
 
 ```{r read files}
-
-library(readr)
-library(dplyr)
-library(purrr)
-
-
-# TODO: fix issue with file path
 paths <- dir(
-  path = system.file("extdata", "CDOMtools", mustWork = TRUE),
+  path = system.file("extdata", package = "CDOMtools", mustWork = TRUE),
   pattern = "\\.txt$", 
   full.names = TRUE)
 names(paths) <- basename(paths)
@@ -68,14 +60,13 @@ raw_cdom <- raw_cdom %>%
 Use linear interpolation to calculate absorbance at integer wavelengths
 
 ```{r interpolation}
-
 ## Iterate interpolation function over each scan
 interpolated_cdom <- raw_cdom %>% 
   split(.$filename) %>% # divide the vector by file
   map_dfr( # iterate interpolation function over each file
     ~interpolate_absorbance(.$wavelength, # wavelength vector
                             .$absorbance), # absorbance vector
-    .id="filename") # keep filename as id
+                            .id="filename") # keep filename as id
 
 ```
 
@@ -84,7 +75,6 @@ interpolated_cdom <- raw_cdom %>%
 To look for instrument drift or zeroing problems during the QAQC process, it is useful to extract the timestamp from the .txt file. Note that this timestamp should only be using for correcting scans and not as the date of sample collection, which is typically included in the file name.
 
 ```{r timestamp}
-
 ## Extract date and time data from raw .txt files
 timestamp <- map_df(paths,
                     read_table, 
@@ -125,7 +115,6 @@ interpolated_cdom <- left_join(interpolated_cdom, timestamp, by = "filename")
 The BLE LTER protocol is to save scans in triplicate. Average the output of the three scans of each sample.
 
 ```{r averaging}
-
 ## First, create a sample id by removing info about the scan triplicate number (e.g. "..._Absorbance_3")
 interpolated_cdom <- interpolated_cdom %>% 
   mutate(sample = sub("_Absorb.*", "", filename)) # remove "Absorbance_x.txt"
@@ -149,7 +138,6 @@ TODO: Make a vignette about correcting sample data using blank scans.
 Absorbance values (i.e. optical density) should be converted to Napierian absorption coefficients for most analyses.
 
 ```{r absorption coef}
-
 cdom <- averaged_cdom %>% 
   mutate(absorption = calc_absorption_coef(absorbance = absorbance,
                                            method = "napierian",
@@ -166,7 +154,6 @@ Now that we have a dataframe including interpolated, averaged, and QAQCed data t
 For example, we may use absorption at 250, 350, or 365 to estimate dissolved organic carbon (DOC) concentrations.
 
 ```{r find coefs}
-
 ## For calculation of CDOM indicies, nest the spectral data for each sample
 ## Spectral data will be stored in a column named "data"
 nested_cdom <- cdom %>% 
@@ -186,7 +173,6 @@ nested_cdom <- nested_cdom %>%
 Here is an example for calculating the log-transformed spectral slope in the 275-295 nm range ($S_{275-295}$), a common proxy for DOM molecular weight.
 
 ```{r spectral slope}
-
 ## Map the spectral slope function over the list of spectral data
 nested_cdom <- nested_cdom %>% 
   mutate(S_275_295 = map_dbl(data, 
@@ -197,25 +183,11 @@ nested_cdom <- nested_cdom %>%
 
 ```
 
-### Calculate spectral slope ratio
-
-The ratio between the 275-295 nm and 350-400 nm log-transformed slopes is another commonly used proxy for DOM molecular weight. 
-
-```{r slope ratio}
-
-nested_cdom <- nested_cdom %>% 
-  mutate(S_R = map_dbl(data, 
-                       ~{calc_slope_ratio(wavelength = .$wavelength,
-                                          absorption = .$absorption)}))
-
-```
-
 ### Calculating SUVA data
 
 Specific ultraviolet absorbance at 254 nm ($SUVA_254$) is commonly used as a proxy for DOM aromaticity. SUVA values are typically calculated with decadic rather than Napierian absorption coefficients and are normalized by DOC concentration in $mg C L^{-1}$. This function by default will convert Napierian absorption coefficients to decadic units, but decadic units can be provided if specified by the absorption_coef argument. The function can also convert DOC concentrations in $umol C L^{-1}$ to $mg C L^{-1}$ using the DOC_unit argument.     
 
 ```{r SUVA}
-
 ## Create example DOC dataframe
 DOC <- cbind(c("lagoon", "river"), c(2, 10)) # example df of DOC concentrations
 colnames(DOC) <- c("sample", "DOC")
@@ -236,3 +208,14 @@ nested_cdom <- nested_cdom %>%
 
 ```
 
+### Calculate spectral slope ratio
+
+The ratio between the 275-295 nm and 350-400 nm log-transformed slopes is another commonly used proxy for DOM molecular weight. 
+
+```{r slope ratio}
+nested_cdom <- nested_cdom %>% 
+  mutate(S_R = map_dbl(data, 
+                       ~{calc_slope_ratio(wavelength = .$wavelength,
+                                          absorption = .$absorption)}))
+
+```
