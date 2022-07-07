@@ -10,7 +10,9 @@ vignette: >
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  warning = FALSE,
+  message = FALSE
 )
 
 ```
@@ -26,12 +28,14 @@ The code in this vignette is written to process UV-vis absorption spectra taken 
 library(devtools)
 devtools::install_github("bristol-emily/CDOMtools")
 library(CDOMtools)
+library(tidyr)
+library(lubridate)
 
 ```
 
 ### Read in a batch of files
 
-Read wavelength and absorbance data from a folder of .txt files. This example uses .txt files bundled in CDOMtools and stored in inst/extdata.
+Read wavelength and absorbance data from a folder of .txt files. This example uses .txt files bundled in CDOMtools and stored in extdata.
 
 ```{r read files}
 
@@ -39,8 +43,10 @@ library(readr)
 library(dplyr)
 library(purrr)
 
+
+# TODO: fix issue with file path
 paths <- dir(
-  path = system.file("extdata", package = "CDOMtools", mustWork = TRUE), 
+  path = system.file("extdata", "CDOMtools", mustWork = TRUE),
   pattern = "\\.txt$", 
   full.names = TRUE)
 names(paths) <- basename(paths)
@@ -50,11 +56,6 @@ raw_cdom <- map_df(paths,
                    col_names = FALSE, # .txt does not include column names
                    .id = "filename")
 
-```
-
-
-
-```{r}
 ## Assign clear column names          
 raw_cdom <- raw_cdom %>%
   dplyr::rename(wavelength = "X1", # rename wavelength column 
@@ -143,19 +144,95 @@ At this point, data is ready for QA/QC process. Any blanks should be analyzed by
 
 TODO: Make a vignette about correcting sample data using blank scans.
 
-## Analyzing processed data
-
 ### Calculate Napierian absorption cofficient
 
 Absorbance values (i.e. optical density) should be converted to Napierian absorption coefficients for most analyses.
 
 ```{r absorption coef}
 
-
+cdom <- averaged_cdom %>% 
+  mutate(absorption = calc_absorption_coef(absorbance = absorbance,
+                                           method = "napierian",
+                                           path_length = 0.01))
 
 ```
 
-### Calculating spectral slope
+## Calculate CDOM indicies
+
+Now that we have a dataframe including interpolated, averaged, and QAQCed data that has been coverted to Napierian absorption coefficients, we can calcuate CDOM indicies that give us information about the dissolved organic matter (DOM) pool.
+
+### Pull out absorption coefficients of interest
+
+For example, we may use absorption at 250, 350, or 365 to estimate dissolved organic carbon (DOC) concentrations.
+
+```{r find coefs}
+
+## For calculation of CDOM indicies, nest the spectral data for each sample
+## Spectral data will be stored in a column named "data"
+nested_cdom <- cdom %>% 
+  group_by(sample) %>% 
+  nest()
+
+## Save the absorption coefficients in the nested list
+nested_cdom <- nested_cdom %>% 
+  mutate(a250 = map_dbl(data, ~{.x$absorption[which (.x$wavelength == 250)]}),
+         a350 = map_dbl(data, ~{.x$absorption[which (.x$wavelength == 350)]}),
+         a365 = map_dbl(data, ~{.x$absorption[which (.x$wavelength == 365)]})) 
+  
+```
+
+### Calculate spectral slopes
+
+Here is an example for calculating the log-transformed spectral slope in the 275-295 nm range ($S_{275-295}$), a common proxy for DOM molecular weight.
+
+```{r spectral slope}
+
+## Map the spectral slope function over the list of spectral data
+nested_cdom <- nested_cdom %>% 
+  mutate(S_275_295 = map_dbl(data, 
+                            ~{calc_spectral_slope(wavelength = .$wavelength,
+                                                        absorption = .$absorption,
+                                                        start = 275,
+                                                        end = 295)}))
+
+```
+
+### Calculate spectral slope ratio
+
+The ratio between the 275-295 nm and 350-400 nm log-transformed slopes is another commonly used proxy for DOM molecular weight. 
+
+```{r slope ratio}
+
+nested_cdom <- nested_cdom %>% 
+  mutate(S_R = map_dbl(data, 
+                       ~{calc_slope_ratio(wavelength = .$wavelength,
+                                          absorption = .$absorption)}))
+
+```
 
 ### Calculating SUVA data
+
+Specific ultraviolet absorbance at 254 nm ($SUVA_254$) is commonly used as a proxy for DOM aromaticity. SUVA values are typically calculated with decadic rather than Napierian absorption coefficients and are normalized by DOC concentration in $mg C L^{-1}$. This function by default will convert Napierian absorption coefficients to decadic units, but decadic units can be provided if specified by the absorption_coef argument. The function can also convert DOC concentrations in $umol C L^{-1}$ to $mg C L^{-1}$ using the DOC_unit argument.     
+
+```{r SUVA}
+
+## Create example DOC dataframe
+DOC <- cbind(c("lagoon", "river"), c(2, 10)) # example df of DOC concentrations
+colnames(DOC) <- c("sample", "DOC")
+DOC <- as.data.frame(DOC)
+DOC$DOC <- as.numeric(DOC$DOC)
+
+## Join dataframe including DOC concentrations with cdom data using sample names
+nested_cdom <- left_join(nested_cdom, DOC, by = "sample")
+
+nested_cdom <- nested_cdom %>% 
+  mutate(SUVA254 = map_dbl(data,
+                          ~{calc_SUVA(wavelength = .$wavelength,
+                                     absorption = .$absorption,
+                                     DOC = DOC,
+                                     specific_wavelength = 254,
+                                     absorption_coef = "napierien",
+                                     DOC_unit = "mg")}))
+
+```
 
