@@ -33,7 +33,7 @@ calc_spectral_slope <- function(wavelength,
 
   if (limit_of_quantification == 0) {
     warning("Limit of quantification argument defaults to 0.
-            Depending on instrument accuracy and sensitivity, spectral slope calculations may not be accurate when absorption is low.")
+            Spectral slope calculations may not be accurate when absorption is low.")
   }
 
   if (start %in% wavelength & end %in% wavelength) {
