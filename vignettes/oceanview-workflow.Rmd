@@ -1,5 +1,5 @@
 ---
-title: "oceanview-workflow"
+title: "OceanView Data Processing Workflow"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{oceanview-workflow}
