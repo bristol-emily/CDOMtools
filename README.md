@@ -14,7 +14,15 @@ You can install the development version of CDOMtools from
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("bristol-emily/CDOMtools")
+devtools::install_github("bristol-emily/CDOMtools", build_vignettes = TRUE)
+#> * checking for file ‘/private/var/folders/xh/tn8cy5m14qjb1861dc8csc000000gn/T/Rtmp6uQl6c/remotes5cd66796a83c/bristol-emily-CDOMtools-3e3cf30/DESCRIPTION’ ... OK
+#> * preparing ‘CDOMtools’:
+#> * checking DESCRIPTION meta-information ... OK
+#> * installing the package to build vignettes
+#> * creating vignettes ... OK
+#> * checking for LF line-endings in source and make files and shell scripts
+#> * checking for empty or unneeded directories
+#> * building ‘CDOMtools_0.1.0.tar.gz’
 
 ## load library
 library(CDOMtools)
@@ -68,7 +76,7 @@ SUVA254 <- calc_SUVA(example$wavelength, # vector of wavelength values (nm)
 ## Vignettes
 
 See the following vignette for an example workflow to process batches of
-CDOM data aquired using OceanView software:
+CDOM data acquired using OceanView software:
 
 ``` r
 browseVignettes("oceanview-workflow")

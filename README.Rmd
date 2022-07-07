@@ -25,7 +25,7 @@ You can install the development version of CDOMtools from [GitHub](https://githu
 
 ``` {r}
 # install.packages("devtools")
-devtools::install_github("bristol-emily/CDOMtools")
+devtools::install_github("bristol-emily/CDOMtools", build_vignettes = TRUE)
 
 ## load library
 library(CDOMtools)
@@ -78,7 +78,7 @@ SUVA254 <- calc_SUVA(example$wavelength, # vector of wavelength values (nm)
 
 ## Vignettes
 
-See the following vignette for an example workflow to process batches of CDOM data aquired using OceanView software:
+See the following vignette for an example workflow to process batches of CDOM data acquired using OceanView software:
 
 ``` r
 browseVignettes("oceanview-workflow")
