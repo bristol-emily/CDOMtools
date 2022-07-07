@@ -36,17 +36,17 @@ calc_slope_ratio <- function(wavelength,
   stopifnot("Wavelength and absorption vectors are not the same length" =
               length(wavelength) == length(absorption))
 
+  # define wavelength ranges
+  wl1 <- 275:295
+  wl2 <- 350:400
+
+  # find absorption values within wavelength regions
+  abs1 <- absorption[which (wavelength >= 275 & wavelength <= 295)]
+  abs2 <- absorption[which (wavelength >= 350 & wavelength <= 400)]
+
   # calculates slope ratio if all absorbance values are greater than limit of quantification
   if (all(abs1 > limit_of_quantification) &
       all(abs2 > limit_of_quantification)) {
-
-    # define wavelength ranges
-    wl1 <- c(275:295)
-    wl2 <- c(350:400)
-
-    # find absorption values within specified regions
-    abs1 <- absorption[which (wavelength >= 275 & wavelength <= 295)]
-    abs2 <- absorption[which (wavelength >= 350 & wavelength <= 400)]
 
     # calculate slope of log transformed absorbance
     slope1 <- coef(lm(log(abs1) ~ wl1))[[2]]
@@ -57,8 +57,8 @@ calc_slope_ratio <- function(wavelength,
 
   } else {
     # if absorption is low at 400 nm, function returns NA
-    return(NA)
     warning("Some absorption values were below the limit of quantification \n
             so the spectral slope was not calculated")
+    return(NA)
   }
 }
