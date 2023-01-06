@@ -1,12 +1,12 @@
 #' Calculate the spectral slope ratio
 #'
-#' Calculates the ratio of log-transformed slopes in the 275-295 to 250-400 nm regions
+#' Calculates the ratio of log-transformed slopes in the 275-295 to 350-400 nm regions
 #'
 #' @param wavelength (num) Vector of wavelengths (nm)
 #' @param absorption (num) Vector of absorption coefficients (m^-1)
 #' @param limit_of_quantification (num) Instrument lower limit of quantification (m^-1) for the 275-400 nm region. Defaults to 0.
 #'
-#' @return (num) Ratio of spectral slopes in the 275-295 to 250-400 nm regions
+#' @return (num) Ratio of spectral slopes in the 275-295 to 350-400 nm regions
 #'
 #'
 
