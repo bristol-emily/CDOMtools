@@ -81,5 +81,5 @@ SUVA254 <- calc_SUVA(example$wavelength, # vector of wavelength values (nm)
 See the following vignette for an example workflow to process batches of CDOM data acquired using OceanView software:
 
 ``` r
-browseVignettes("oceanview-workflow")
+vignette("oceanview-workflow")
 ```

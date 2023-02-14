@@ -15,14 +15,16 @@ You can install the development version of CDOMtools from
 ``` r
 # install.packages("devtools")
 devtools::install_github("bristol-emily/CDOMtools", build_vignettes = TRUE)
-#> * checking for file ‘/private/var/folders/xh/tn8cy5m14qjb1861dc8csc000000gn/T/Rtmp6uQl6c/remotes5cd66796a83c/bristol-emily-CDOMtools-3e3cf30/DESCRIPTION’ ... OK
-#> * preparing ‘CDOMtools’:
-#> * checking DESCRIPTION meta-information ... OK
-#> * installing the package to build vignettes
-#> * creating vignettes ... OK
-#> * checking for LF line-endings in source and make files and shell scripts
-#> * checking for empty or unneeded directories
-#> * building ‘CDOMtools_0.1.0.tar.gz’
+#>      checking for file ‘/private/var/folders/xh/tn8cy5m14qjb1861dc8csc000000gn/T/RtmpqBoqLc/remotes5bab30791417/bristol-emily-CDOMtools-88c8758/DESCRIPTION’ ...  ✔  checking for file ‘/private/var/folders/xh/tn8cy5m14qjb1861dc8csc000000gn/T/RtmpqBoqLc/remotes5bab30791417/bristol-emily-CDOMtools-88c8758/DESCRIPTION’
+#>   ─  preparing ‘CDOMtools’:
+#>      checking DESCRIPTION meta-information ...  ✔  checking DESCRIPTION meta-information
+#>   ─  installing the package to build vignettes
+#>      creating vignettes ...  ✔  creating vignettes (3.1s)
+#>   ─  checking for LF line-endings in source and make files and shell scripts
+#>   ─  checking for empty or unneeded directories
+#>   ─  building ‘CDOMtools_0.1.0.tar.gz’
+#>      
+#> 
 
 ## load library
 library(CDOMtools)
@@ -35,6 +37,7 @@ absorption coefficients
 (![m^{-1}](https://latex.codecogs.com/png.image?%5Cdpi%7B110%7D&space;%5Cbg_white&space;m%5E%7B-1%7D "m^{-1}")).
 
 ``` r
+
 ## load example absorption spectra dataset
 data("example")
 
@@ -51,6 +54,7 @@ Calculate the log-transformed spectral slope in the 275-295 nm
 wavelength region.
 
 ``` r
+
 slope <- calc_spectral_slope(example$wavelength, # vector of wavelength values (nm)
                              example$absorption, # vector of absorption values (m^-1)
                              start = 275, # start of wavelength region
@@ -65,6 +69,7 @@ DOC concentration in
 (e.g. ![SUVA_254](https://latex.codecogs.com/png.image?%5Cdpi%7B110%7D&space;%5Cbg_white&space;SUVA_254 "SUVA_254")).
 
 ``` r
+
 SUVA254 <- calc_SUVA(example$wavelength, # vector of wavelength values (nm)
                      example$absorption, # vector of absorption values 
                      11.3, # DOC concentration
@@ -79,5 +84,5 @@ See the following vignette for an example workflow to process batches of
 CDOM data acquired using OceanView software:
 
 ``` r
-browseVignettes("oceanview-workflow")
+vignette("oceanview-workflow")
 ```
