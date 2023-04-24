@@ -170,7 +170,7 @@ nested_cdom <- nested_cdom %>%
 
 ### Calculate spectral slopes
 
-Here is an example for calculating the log-transformed spectral slope in the 275-295 nm range ($S_{275-295}$), a common proxy for DOM molecular weight.
+Here is an example for calculating the log-transformed spectral slope in the 275-295 nm range ($S_{275-295}$), a common proxy for DOM molecular weight. An optional argument is to supply a limit of quantification for absorbance values. This prevents calculating slopes when values are low. 
 
 ```{r spectral slope}
 ## Map the spectral slope function over the list of spectral data
@@ -179,7 +179,8 @@ nested_cdom <- nested_cdom %>%
                             ~{calc_spectral_slope(wavelength = .$wavelength,
                                                         absorption = .$absorption,
                                                         start = 275,
-                                                        end = 295)}))
+                                                        end = 295,
+                                                  limit_of_quantification = 0.5)}))
 
 ```
 
@@ -198,13 +199,14 @@ DOC$DOC <- as.numeric(DOC$DOC)
 nested_cdom <- left_join(nested_cdom, DOC, by = "sample")
 
 nested_cdom <- nested_cdom %>% 
-  mutate(SUVA254 = map_dbl(data,
-                          ~{calc_SUVA(wavelength = .$wavelength,
-                                     absorption = .$absorption,
-                                     DOC = DOC,
-                                     specific_wavelength = 254,
-                                     absorption_coef = "napierien",
-                                     DOC_unit = "mg")}))
+  mutate(SUVA254 = map2_dbl(.x = data,
+                            .y = DOC,
+                            ~{calc_SUVA(wavelength = .x$wavelength,
+                                      absorption = .x$absorption,
+                                      DOC = .y,
+                                      specific_wavelength = 254,
+                                      absorption_coef = "napierien", # specify absorption unit
+                                      DOC_unit = "mg")})) # specify DOC unit
 
 ```
 
@@ -216,6 +218,7 @@ The ratio between the 275-295 nm and 350-400 nm log-transformed slopes is anothe
 nested_cdom <- nested_cdom %>% 
   mutate(S_R = map_dbl(data, 
                        ~{calc_slope_ratio(wavelength = .$wavelength,
-                                          absorption = .$absorption)}))
+                                          absorption = .$absorption,
+                                          limit_of_quantification = 0.5)}))
 
 ```
